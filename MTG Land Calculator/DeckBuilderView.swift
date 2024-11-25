@@ -106,11 +106,18 @@ class DeckViewModel {
     func updateManaPips(for color: ManaColor, value: Int) {
         manaPips[color] = max(0, value) // Prevent negative values
     }
+
+    /// This "better custom binding" method was suggested by
+    /// Brandon Williams on BlueSky:
+    /// https://bsky.app/profile/mbrandonw.bsky.social/post/3lbkgd3e5tc2y
+    subscript(pipCountFor color: ManaColor) -> Int {
+        get { manaPips[color] ?? 0 }
+        set { updateManaPips(for: color, value: newValue) }    }
 }
 
 struct CustomStepper: View {
     let color: ManaColor
-    let viewModel: DeckViewModel
+    @Bindable var viewModel: DeckViewModel
 
     var body: some View {
         HStack {
@@ -118,16 +125,17 @@ struct CustomStepper: View {
                 Text(color.rawValue.capitalized)
             } icon: {
                 color.symbolImage
-//                MTGText(color.symbol)
             }
             .frame(width: 100, alignment: .leading)
 
-            Stepper(value: Binding(
-                get: { viewModel.manaPips[color] ?? 0 },
-                set: { viewModel.updateManaPips(for: color, value: $0) }
-            ), in: 0...Int.max) {
-                Text("×\(viewModel.manaPips[color] ?? 0)")
-            }
+            /// This "better custom binding" method was suggested by
+            /// Brandon Williams on BlueSky:
+            /// https://bsky.app/profile/mbrandonw.bsky.social/post/3lbkgd3e5tc2y
+            Stepper(
+                value: $viewModel[pipCountFor: color],
+                in: 0...Int.max) {
+                    Text("×\(viewModel.manaPips[color] ?? 0)")
+                }
         }
     }
 }
