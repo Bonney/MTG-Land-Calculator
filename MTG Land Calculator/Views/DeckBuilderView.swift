@@ -9,22 +9,23 @@ import SwiftUI
 import Backpack
 
 struct DeckBuilderView: View {
-  @Environment(\.horizontalSizeClass) var horizontalSizeClass
   @State private var viewModel = DeckViewModel()
 
   var body: some View {
-    List {
-      deckSection
-      manaSymbolSection
-      suggestedLandsSection
+    NavigationStack {
+      List {
+        deckSection
+        manaSymbolSection
+        suggestedLandsSection
+      }
+      .listStyle(.plain)
+      .headerProminence(.increased)
+      .navigationTitle("Land Calculator")
+      .toolbarTitleDisplayMode(.inline)
+      .monospacedDigit()
+      .contentTransition(.numericText())
+      .animation(.smooth, value: viewModel.calculatedLands)
     }
-    .listStyle(.plain)
-    .headerProminence(.increased)
-    .monospacedDigit()
-    .contentTransition(.numericText())
-    .animation(.smooth, value: viewModel.calculatedLands)
-    .navigationTitle("Land Calculator")
-    .toolbarTitleDisplayMode(.inline)
   }
 
   var deckSection: some View {
@@ -40,7 +41,7 @@ struct DeckBuilderView: View {
           Text("Spells").foregroundStyle(.secondary)
         }
 
-        Slider(value: $viewModel.landRatio, in: 0.1...0.6, step: 0.01)
+        Slider(value: $viewModel.landRatio, in: 0.0...1.0, step: 0.01)
 
         VStack {
           Text(viewModel.totalLands.formatted()).foregroundStyle(.primary)
@@ -63,14 +64,10 @@ struct DeckBuilderView: View {
       ForEach(ManaColor.allCases, id: \.self) { color in
         let count: Int = (viewModel.calculatedLands[color] ?? 0)
 
-        Label {
-          LabeledContent {
-            Text("×\(count.formatted())")
-          } label: {
-            Text(color.landName)
-          }
-        } icon: {
+        HStack {
           color.symbolImage
+          Text(count, format: .number.precision(.integerLength(2))).monospaced()
+          Text(color.landName)
         }
       }
     }
@@ -78,7 +75,5 @@ struct DeckBuilderView: View {
 }
 
 #Preview {
-  NavigationStack {
-    DeckBuilderView()
-  }
+  DeckBuilderView()
 }

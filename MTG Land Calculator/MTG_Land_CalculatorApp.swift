@@ -11,9 +11,7 @@ import SwiftUI
 struct MTG_Land_CalculatorApp: App {
     var body: some Scene {
         WindowGroup {
-            NavigationStack {
-                DeckBuilderView()
-            }
+          DeckBuilderView()
         }
     }
 }
